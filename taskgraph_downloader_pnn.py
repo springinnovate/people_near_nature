@@ -30,6 +30,7 @@ class TaskGraphDownloader(object):
                 pass
         self.task_graph = taskgraph.TaskGraph(
             taskgraph_dir_path, n_workers)
+        self.taskgraph_dir_path = taskgraph_dir_path
         # this will be a dictionary indexed by ecoshard key to a dict
         # containing fields:
         #   'url': the original url
@@ -131,11 +132,11 @@ class TaskGraphDownloader(object):
         """
         if key not in self.key_to_path_task_map:
             raise ValueError('%s not a valid key' % key)
-        local_ecoshard_path, download_task = self.key_to_path_task_map[key]
+        local_path = self.key_to_path_task_map[key]['local_path']
         self.key_to_path_task_map[key]['download_task'].join()
-        if not os.path.exists(local_ecoshard_path):
+        if not os.path.exists(local_path):
             raise RuntimeError('%s does not exist on disk')
-        return local_ecoshard_path
+        return local_path
 
     def join(self):
         """Joins all downloading tasks, blocks until complete."""
