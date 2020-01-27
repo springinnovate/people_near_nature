@@ -87,9 +87,6 @@ def main():
         'poor_pop': aligned_raster_list[2],
     }
 
-    hab_mask_nodata = pygeoprocessing.get_raster_info(
-        tg_downloader.get_path('hab_mask'))['nodata'][0]
-
     meters_per_degree = 110000.0
     for km_size in [10, 100]:
         degrees = km_size * 1000 / meters_per_degree
