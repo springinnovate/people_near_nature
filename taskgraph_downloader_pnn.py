@@ -11,26 +11,28 @@ GZIP_BUFFER_SIZE = 2**20
 
 
 class TaskGraphDownloader(object):
-    def __init__(self, download_dir, taskgraph_dir_path, n_workers=0):
+    def __init__(
+            self, download_dir, taskgraph_object_or_dir, n_workers=0):
         """Construct TaskGraphDownloader object.
 
         Parameters:
             download_dir (str): the base directory which files will be
                 downloaded into.
-            taskgraph_dir_path (str): path to the taskgraph workspace database
-                used to manage the TaskGraph object. This directory should not
-                be used for any other file storage.
+            taskgraph_object_or_dir (str/TaskGraph): path to the taskgraph
+                workspace database used to manage the TaskGraph object. This
+                directory should not be used for any other file storage.
             n_workers (int): number of processes to use to simultaneously
                 download ecoshards.
         """
-        for dir_path in [download_dir, taskgraph_dir_path]:
-            try:
-                os.makedirs(dir_path)
-            except OSError:
-                pass
-        self.task_graph = taskgraph.TaskGraph(
-            taskgraph_dir_path, n_workers)
-        self.taskgraph_dir_path = taskgraph_dir_path
+        try:
+            os.makedirs(download_dir)
+        except OSError:
+            pass
+        if isinstance(taskgraph_object_or_dir, taskgraph.TaskGraph):
+            self.task_graph = taskgraph_object_or_dir
+        else:
+            self.task_graph = taskgraph.TaskGraph(
+                taskgraph_object_or_dir, n_workers)
         # this will be a dictionary indexed by ecoshard key to a dict
         # containing fields:
         #   'url': the original url
@@ -98,7 +100,7 @@ class TaskGraphDownloader(object):
                 task_name='download %s' % local_ecoshard_path)
         elif decompress == 'unzip':
             unzip_token_path = os.path.join(
-                self.taskgraph_dir_path, '%s.UNZIPTOKEN' % os.path.basename(
+                self.download_dir, '%s.UNZIPTOKEN' % os.path.basename(
                     ecoshard_url))
             local_ecoshard_path = self.download_dir
             download_task = self.task_graph.add_task(
