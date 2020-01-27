@@ -6,6 +6,7 @@ import sys
 
 from osgeo import gdal
 from osgeo import osr
+import ecoshard
 import numpy
 import pygeoprocessing
 import taskgraph
@@ -121,7 +122,7 @@ def main():
             # aligned_raster_list[0] is the hab mask
             spread_nodata = -1
             task_graph.add_task(
-                func=pygeoprocessing.raster_calculator,
+                func=build_overviews_raster_calculator,
                 args=(
                     [(population_spread_raster_path, 1),
                      (aligned_raster_list[0], 1),
@@ -134,6 +135,16 @@ def main():
 
     task_graph.join()
     task_graph.close()
+
+
+def build_overviews_raster_calculator(
+        base_raster_path_band_const_list, local_op, target_raster_path,
+        datatype_target, nodata_target):
+    """Passthrough for raster_calculator."""
+    pygeoprocessing.raster_calculator(
+        base_raster_path_band_const_list, local_op, target_raster_path,
+        datatype_target, nodata_target)
+    ecoshard.build_overviews(target_raster_path)
 
 
 def mask_op(signal, mask, mask_nodata, target_nodata):
