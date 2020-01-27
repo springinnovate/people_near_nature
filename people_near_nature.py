@@ -101,6 +101,7 @@ def main():
             func=create_averaging_kernel_raster,
             args=(kernel_radius, kernel_filepath),
             kwargs={'normalize': False},
+            target_path_list=[kernel_filepath],
             task_name='create %d kernel' % km_size)
 
         for population_key in ['total_pop', 'poor_pop']:
@@ -125,9 +126,7 @@ def main():
                 func=build_overviews_raster_calculator,
                 args=(
                     [(population_spread_raster_path, 1),
-                     (aligned_raster_list[0], 1),
-                     (hab_mask_nodata, 'raw'),
-                     (spread_nodata, 'raw')], mask_op,
+                     (aligned_raster_list[0], 1)], mask_op,
                     pop_on_hab_raster_path, gdal.GDT_Float32, spread_nodata),
                 target_path_list=[pop_on_hab_raster_path],
                 dependent_task_list=[spread_task],
@@ -141,9 +140,12 @@ def build_overviews_raster_calculator(
         base_raster_path_band_const_list, local_op, target_raster_path,
         datatype_target, nodata_target):
     """Passthrough for raster_calculator."""
+    local_raster_nodata_list = [
+        (pygeoprocessing.get_raster_info(path[0])['nodata'][0], 'raw')
+        for path in base_raster_path_band_const_list]
     pygeoprocessing.raster_calculator(
-        base_raster_path_band_const_list, local_op, target_raster_path,
-        datatype_target, nodata_target)
+        base_raster_path_band_const_list + local_raster_nodata_list, local_op,
+        target_raster_path, datatype_target, nodata_target)
     ecoshard.build_overviews(target_raster_path)
 
 
