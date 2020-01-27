@@ -87,7 +87,7 @@ def main():
     }
 
     hab_mask_nodata = pygeoprocessing.get_raster_info(
-        tg_downloader.get('hab_mask'))['nodata'][0]
+        tg_downloader.get_path('hab_mask'))['nodata'][0]
 
     meters_per_degree = 110000.0
     for km_size in [10, 100]:
@@ -110,6 +110,7 @@ def main():
                 args=(
                     (aligned_path_map[population_key], 1),
                     (kernel_filepath, 1), population_spread_raster_path),
+                kwargs={'ignore_nodata': True},
                 target_path_list=[population_spread_raster_path],
                 dependent_task_list=[kernel_task, align_raster_task],
                 task_name='spread %s to %d' % (population_key, km_size))
