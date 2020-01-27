@@ -13,6 +13,7 @@ import taskgraph_downloader_pnn
 
 WORKSPACE_DIR = 'people_near_nature_workspace'
 CHURN_DIR = os.path.join(WORKSPACE_DIR, 'churn')
+ALIGNED_DIR = os.path.join(WORKSPACE_DIR, 'aligned')
 ECOSHARD_DIR = os.path.join(WORKSPACE_DIR, 'ecoshard')
 TASKGRAPH_DIR = os.path.join(WORKSPACE_DIR, 'taskgraph')
 ECOSHARD_BASE_URL = 'https://storage.googleapis.com/critical-natural-capital-ecoshards/'
@@ -43,7 +44,8 @@ logging.getLogger('taskgraph').setLevel(logging.WARN)
 
 
 def main():
-    for dir_path in [WORKSPACE_DIR, CHURN_DIR, ECOSHARD_DIR, TASKGRAPH_DIR]:
+    for dir_path in [
+            WORKSPACE_DIR, CHURN_DIR, ECOSHARD_DIR, TASKGRAPH_DIR, ALIGNED_DIR]:
         try:
             os.makedirs(dir_path)
         except OSError:
@@ -65,7 +67,7 @@ def main():
             'hab_mask', 'total_pop', 'poor_pop']]
 
     aligned_raster_list = [
-        os.path.join(CHURN_DIR, os.path.basename(path))
+        os.path.join(ALIGNED_DIR, os.path.basename(path))
         for path in base_raster_list]
 
     target_pixel_size = pygeoprocessing.get_raster_info(
