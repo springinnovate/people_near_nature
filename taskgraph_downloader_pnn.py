@@ -43,7 +43,7 @@ class TaskGraphDownloader(object):
         pass
 
     def download_ecoshard(
-            self, ecoshard_url, key, decompress='none'):
+            self, ecoshard_url, key, decompress='none', local_path=None):
         """Download the ecoshard given by `ecoshard_url`.
 
         This registers `key` as a resolved ecoshard file
@@ -54,8 +54,15 @@ class TaskGraphDownloader(object):
             decompress (str): if 'unzip' or 'gunzip' the "unzip" or
                 "gunzip" algorithms are used to decompress the file
                 downloaded by the ecoshard_url. A later `get` by `key` will
-                return the directory the file was unzipped into
-                or in the case of GZ, the root file that was gunzipped.
+                return the directory the file was unzipped into unless
+                `local_path` was defined, or in the case of GZ, the root file
+                that was gunzipped.
+            local_path (str): if None, the local path returned by `get` will
+                be the path to the downloaded ecoshard. In the case of
+                "unzip" decompression the desired local path will likely not
+                be the .zip, but rather a file inside. This parameter can
+                be used to add the local path with respect to the unziped
+                archive that is returned on a `get`.
 
         Returns:
             None.
@@ -98,8 +105,15 @@ class TaskGraphDownloader(object):
                 args=(ecoshard_url, self.download_dir, unzip_token_path),
                 target_path_list=[unzip_token_path],
                 task_name='download %s' % os.path.basename(ecoshard_url))
+            if local_path:
+                local_ecoshard_path = os.path.join(
+                    self.download_dir, local_path)
 
-        self.key_to_path_task_map[key] = (local_ecoshard_path, download_task)
+        self.key_to_path_task_map[key] = {
+            'url': ecoshard_url,
+            'local_path': local_ecoshard_path,
+            'download_task': download_task
+        }
 
     def get_path(self, key):
         """Return the filepath to the ecoshard referenced by key.
@@ -118,10 +132,15 @@ class TaskGraphDownloader(object):
         if key not in self.key_to_path_task_map:
             raise ValueError('%s not a valid key' % key)
         local_ecoshard_path, download_task = self.key_to_path_task_map[key]
-        download_task.join()
+        self.key_to_path_task_map[key]['download_task'].join()
         if not os.path.exists(local_ecoshard_path):
             raise RuntimeError('%s does not exist on disk')
         return local_ecoshard_path
+
+    def join(self):
+        """Joins all downloading tasks, blocks until complete."""
+        for download_map in self.key_to_path_task_map.values():
+            download_map['download_task'].join()
 
 
 def download_and_unzip(url, target_dir, target_token_path):

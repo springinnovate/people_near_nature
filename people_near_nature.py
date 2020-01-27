@@ -42,5 +42,6 @@ def main(args):
             (HAB_MASK_URL,  'hab_mask')]:
         tg_downloader.download_ecoshard(url, key)
     tg_downloader.download_ecoshard(
-        URBAN_POOR_POPULATION_URL, 'urban_poor_population', 'unzip')
+        URBAN_POOR_POPULATION_URL, 'urban_poor_population', 'unzip',
+        'lspop2017')
 
