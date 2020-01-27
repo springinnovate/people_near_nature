@@ -86,6 +86,9 @@ def main():
         'poor_pop': aligned_raster_list[2],
     }
 
+    hab_mask_nodata = pygeoprocessing.get_raster_info(
+        tg_downloader.get('hab_mask'))['nodata'][0]
+
     meters_per_degree = 110000.0
     for km_size in [10, 100]:
         degrees = km_size * 1000 / meters_per_degree
@@ -115,12 +118,15 @@ def main():
                 WORKSPACE_DIR, '%s_%d.tif' % (population_key, km_size))
 
             # aligned_raster_list[0] is the hab mask
+            spread_nodata = -1
             task_graph.add_task(
                 func=pygeoprocessing.raster_calculator,
                 args=(
                     [(population_spread_raster_path, 1),
-                     (aligned_raster_list[0], 1)], mask_op,
-                    pop_on_hab_raster_path, gdal.GDT_Float32, -1),
+                     (aligned_raster_list[0], 1),
+                     (hab_mask_nodata, 'raw'),
+                     (spread_nodata, 'raw')], mask_op,
+                    pop_on_hab_raster_path, gdal.GDT_Float32, spread_nodata),
                 target_path_list=[pop_on_hab_raster_path],
                 dependent_task_list=[spread_task],
                 task_name='mask %s %d' % (population_key, km_size))
