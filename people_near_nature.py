@@ -223,8 +223,7 @@ def create_averaging_kernel_raster(
     cy = n_rows / 2.0
 
     kernel_array = numpy.where(
-        (cx-jv)**2 / radius_in_pixels[0] +
-        (cy-iv)**2 / radius_in_pixels[1] <= 1.0, 1.0, 0.0)
+        ((cx-jv)**2 + (cy-iv)**2)**0.5 <= radius_in_pixels[0], 1.0, 0.0)
     LOGGER.debug(kernel_array)
 
     # normalize
