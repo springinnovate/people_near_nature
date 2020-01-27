@@ -80,8 +80,8 @@ def main():
         task_name='align rasters')
 
     aligned_path_map = {
-        'total_pop': tg_downloader.get_path('total_pop'),
-        'poor_pop': tg_downloader.get_path('poor_pop'),
+        'total_pop': aligned_raster_list[1],
+        'poor_pop': aligned_raster_list[2],
     }
 
     meters_per_degree = 110000.0
