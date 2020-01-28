@@ -146,9 +146,9 @@ def build_overviews_raster_calculator(
     ecoshard.build_overviews(target_raster_path)
 
 
-def mask_op(signal, mask, mask_nodata, target_nodata):
+def mask_op(signal, mask, signal_nodata, mask_nodata):
     result = numpy.empty_like(signal)
-    result[:] = target_nodata
+    result[:] = signal_nodata
     valid_mask = ~numpy.isclose(mask, mask_nodata)
     result[valid_mask] = signal[valid_mask]
     return result
