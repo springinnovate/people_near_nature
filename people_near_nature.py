@@ -143,7 +143,8 @@ def build_overviews_raster_calculator(
     pygeoprocessing.raster_calculator(
         base_raster_path_band_const_list + local_raster_nodata_list, local_op,
         target_raster_path, datatype_target, local_raster_nodata_list[0][0])
-    ecoshard.build_overviews(target_raster_path)
+    ecoshard.build_overviews(
+        target_raster_path, interpolation_method='bilinear')
 
 
 def mask_op(signal, mask, signal_nodata, mask_nodata):
